@@ -1,0 +1,9 @@
+
+# ASP.NET Core secrets — never commit real credentials
+appsettings.Development.json
+appsettings.*.json
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

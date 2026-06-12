@@ -1,0 +1,9 @@
+C:\Users\smich\Documents\vscode\SDMTech\backend\obj\Release\net8.0\backend.csproj.AssemblyReference.cache
+C:\Users\smich\Documents\vscode\SDMTech\backend\obj\Release\net8.0\rpswa.dswa.cache.json
+C:\Users\smich\Documents\vscode\SDMTech\backend\obj\Release\net8.0\backend.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\smich\Documents\vscode\SDMTech\backend\obj\Release\net8.0\backend.AssemblyInfoInputs.cache
+C:\Users\smich\Documents\vscode\SDMTech\backend\obj\Release\net8.0\backend.AssemblyInfo.cs
+C:\Users\smich\Documents\vscode\SDMTech\backend\obj\Release\net8.0\backend.csproj.CoreCompileInputs.cache
+C:\Users\smich\Documents\vscode\SDMTech\backend\obj\Release\net8.0\backend.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\smich\Documents\vscode\SDMTech\backend\obj\Release\net8.0\backend.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\smich\Documents\vscode\SDMTech\backend\obj\Release\net8.0\backend.sourcelink.json

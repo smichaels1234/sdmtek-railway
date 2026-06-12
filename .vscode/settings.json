@@ -1,0 +1,5 @@
+{
+    "appService.preDeployTask": "publish-release",
+    "appService.deploySubpath": "bin\\Release\\net10.0\\publish",
+    "appService.defaultWebAppToDeploy": "/subscriptions/eaac3b75-9aeb-45a8-a606-24457fe0be62/resourceGroups/SDMTek/providers/Microsoft.Web/sites/sdmtek"
+}
