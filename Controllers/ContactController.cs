@@ -2,6 +2,7 @@ using backend.Models;
 using backend.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -15,18 +16,18 @@ namespace SDMTech.Controllers
         private readonly ILogger<ContactController> _logger;
         private readonly SDMTekContext _context;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IConfiguration _configuration;
+        private readonly CaptchaOptions _captchaOptions;
 
         public ContactController(
             ILogger<ContactController> logger,
             SDMTekContext context,
             IHttpClientFactory httpClientFactory,
-            IConfiguration configuration)
+            IOptions<CaptchaOptions> captchaOptions)
         {
             _logger = logger;
             _context = context;
             _httpClientFactory = httpClientFactory;
-            _configuration = configuration;
+            _captchaOptions = captchaOptions.Value;
         }
 
         [HttpGet]
@@ -109,11 +110,13 @@ namespace SDMTech.Controllers
 
         private async Task<bool> VerifyCaptchaAsync(string captchaToken)
         {
-            var secretKey = ResolveCaptchaSecretKey();
+            var secretKey = string.IsNullOrWhiteSpace(_captchaOptions.SecretKey)
+                ? null
+                : _captchaOptions.SecretKey.Trim();
             if (string.IsNullOrWhiteSpace(secretKey))
             {
                 _logger.LogError(
-                    "Captcha secret key is not configured. Checked keys: Captcha:SecretKey, Captcha__SecretKey, RECAPTCHA_SECRET_KEY, GOOGLE_RECAPTCHA_SECRET.");
+                    "Captcha secret key is not configured. Checked keys at startup: Captcha:SecretKey, Captcha__SecretKey, RECAPTCHA_SECRET_KEY, GOOGLE_RECAPTCHA_SECRET.");
                 return false;
             }
 
@@ -155,18 +158,6 @@ namespace SDMTech.Controllers
                 _logger.LogError(ex, "Captcha verification failed due to an exception.");
                 return false;
             }
-        }
-
-        private string? ResolveCaptchaSecretKey()
-        {
-            var secretKey = _configuration["Captcha:SecretKey"]
-                ?? _configuration["Captcha__SecretKey"]
-                ?? Environment.GetEnvironmentVariable("Captcha__SecretKey")
-                ?? Environment.GetEnvironmentVariable("CAPTCHA__SECRETKEY")
-                ?? Environment.GetEnvironmentVariable("RECAPTCHA_SECRET_KEY")
-                ?? Environment.GetEnvironmentVariable("GOOGLE_RECAPTCHA_SECRET");
-
-            return string.IsNullOrWhiteSpace(secretKey) ? null : secretKey.Trim();
         }
 
         private sealed class RecaptchaVerifyResponse

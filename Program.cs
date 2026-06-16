@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using backend.Data;
+using backend.Models;
 using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +23,10 @@ else
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?? Array.Empty<string>();
+
+var captchaSecretKey = ResolveCaptchaSecretKey(builder.Configuration);
+builder.Services.AddOptions<CaptchaOptions>()
+    .Configure(options => options.SecretKey = captchaSecretKey);
 
 builder.Services.AddCors(options =>
 {
@@ -54,6 +59,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+if (string.IsNullOrWhiteSpace(captchaSecretKey))
+{
+    app.Logger.LogWarning(
+        "Captcha secret key is missing. Configure one of: Captcha__SecretKey, RECAPTCHA_SECRET_KEY, or GOOGLE_RECAPTCHA_SECRET.");
+}
+else
+{
+    app.Logger.LogInformation("Captcha secret key is configured.");
+}
 
 if (!hasConnectionString)
 {
@@ -222,4 +237,16 @@ static string BuildConnectionEnvProbe(IConfiguration configuration)
         : string.Join("|", discovered);
 
     return $"Probe: {knownSummary}. Discovered env keys: {discoveredSummary}.";
+}
+
+static string? ResolveCaptchaSecretKey(IConfiguration configuration)
+{
+    var secretKey = configuration["Captcha:SecretKey"]
+        ?? configuration["Captcha__SecretKey"]
+        ?? Environment.GetEnvironmentVariable("Captcha__SecretKey")
+        ?? Environment.GetEnvironmentVariable("CAPTCHA__SECRETKEY")
+        ?? Environment.GetEnvironmentVariable("RECAPTCHA_SECRET_KEY")
+        ?? Environment.GetEnvironmentVariable("GOOGLE_RECAPTCHA_SECRET");
+
+    return string.IsNullOrWhiteSpace(secretKey) ? null : secretKey.Trim();
 }
