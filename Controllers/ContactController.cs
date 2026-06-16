@@ -2,7 +2,6 @@ using backend.Models;
 using backend.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -16,18 +15,18 @@ namespace SDMTech.Controllers
         private readonly ILogger<ContactController> _logger;
         private readonly SDMTekContext _context;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly CaptchaOptions _captchaOptions;
+        private readonly IConfiguration _configuration;
 
         public ContactController(
             ILogger<ContactController> logger,
             SDMTekContext context,
             IHttpClientFactory httpClientFactory,
-            IOptions<CaptchaOptions> captchaOptions)
+            IConfiguration configuration)
         {
             _logger = logger;
             _context = context;
             _httpClientFactory = httpClientFactory;
-            _captchaOptions = captchaOptions.Value;
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -110,13 +109,10 @@ namespace SDMTech.Controllers
 
         private async Task<bool> VerifyCaptchaAsync(string captchaToken)
         {
-            var secretKey = string.IsNullOrWhiteSpace(_captchaOptions.SecretKey)
-                ? null
-                : _captchaOptions.SecretKey.Trim();
+            var secretKey = _configuration["Captcha:SecretKey"];
             if (string.IsNullOrWhiteSpace(secretKey))
             {
-                _logger.LogError(
-                    "Captcha secret key is not configured. Checked keys at startup: Captcha:SecretKey, Captcha__SecretKey, RECAPTCHA_SECRET_KEY, GOOGLE_RECAPTCHA_SECRET.");
+                _logger.LogError("Captcha secret key is not configured.");
                 return false;
             }
 
