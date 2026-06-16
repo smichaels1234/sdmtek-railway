@@ -10,9 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = ResolveConnectionString(builder.Configuration);
 if (string.IsNullOrWhiteSpace(connectionString))
 {
+    var envProbe = BuildConnectionEnvProbe(builder.Configuration);
     throw new InvalidOperationException(
         "Connection string 'ConnectionStrings:SDMTekConnection' is missing. " +
-    "Set one of: 'ConnectionStrings__SDMTekConnection', 'SDMTekConnection', or 'DATABASE_URL'.");
+        "Set one of: 'ConnectionStrings__SDMTekConnection', 'SDMTekConnection', 'DATABASE_URL', 'POSTGRES_URL', or PG* vars. " +
+        envProbe);
 }
 
 builder.Services.AddDbContext<SDMTekContext>(options =>
@@ -166,4 +168,45 @@ static string? ResolveConnectionString(IConfiguration configuration)
     }
 
     return trimmed;
+}
+
+static string BuildConnectionEnvProbe(IConfiguration configuration)
+{
+    static string State(string? value) => string.IsNullOrWhiteSpace(value) ? "missing" : "present";
+
+    var known = new (string Key, string? Value)[]
+    {
+        ("ConnectionStrings__SDMTekConnection", Environment.GetEnvironmentVariable("ConnectionStrings__SDMTekConnection") ?? configuration["ConnectionStrings:SDMTekConnection"]),
+        ("SDMTekConnection", Environment.GetEnvironmentVariable("SDMTekConnection") ?? configuration["SDMTekConnection"]),
+        ("DATABASE_URL", Environment.GetEnvironmentVariable("DATABASE_URL") ?? configuration["DATABASE_URL"]),
+        ("POSTGRES_URL", Environment.GetEnvironmentVariable("POSTGRES_URL") ?? configuration["POSTGRES_URL"]),
+        ("POSTGRESQL_URL", Environment.GetEnvironmentVariable("POSTGRESQL_URL") ?? configuration["POSTGRESQL_URL"]),
+        ("PGHOST", Environment.GetEnvironmentVariable("PGHOST") ?? configuration["PGHOST"]),
+        ("PGPORT", Environment.GetEnvironmentVariable("PGPORT") ?? configuration["PGPORT"]),
+        ("PGDATABASE", Environment.GetEnvironmentVariable("PGDATABASE") ?? configuration["PGDATABASE"]),
+        ("PGUSER", Environment.GetEnvironmentVariable("PGUSER") ?? configuration["PGUSER"]),
+        ("PGPASSWORD", Environment.GetEnvironmentVariable("PGPASSWORD") ?? configuration["PGPASSWORD"])
+    };
+
+    var knownSummary = string.Join(
+        ", ",
+        known.Select(k => $"{k.Key}={State(k.Value)}"));
+
+    var discovered = Environment.GetEnvironmentVariables()
+        .Keys
+        .Cast<object>()
+        .Select(k => k?.ToString() ?? string.Empty)
+        .Where(k => !string.IsNullOrWhiteSpace(k))
+        .Where(k => k.Contains("DATABASE", StringComparison.OrdinalIgnoreCase)
+            || k.Contains("POSTGRES", StringComparison.OrdinalIgnoreCase)
+            || k.Contains("PG", StringComparison.OrdinalIgnoreCase))
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .OrderBy(k => k, StringComparer.OrdinalIgnoreCase)
+        .ToArray();
+
+    var discoveredSummary = discovered.Length == 0
+        ? "none"
+        : string.Join("|", discovered);
+
+    return $"Probe: {knownSummary}. Discovered env keys: {discoveredSummary}.";
 }
