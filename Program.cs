@@ -8,17 +8,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Configure Database Context
 var connectionString = ResolveConnectionString(builder.Configuration);
-if (string.IsNullOrWhiteSpace(connectionString))
+var hasConnectionString = !string.IsNullOrWhiteSpace(connectionString);
+if (hasConnectionString)
 {
-    var envProbe = BuildConnectionEnvProbe(builder.Configuration);
-    throw new InvalidOperationException(
-        "Connection string 'ConnectionStrings:SDMTekConnection' is missing. " +
-        "Set one of: 'ConnectionStrings__SDMTekConnection', 'SDMTekConnection', 'DATABASE_URL', 'POSTGRES_URL', or PG* vars. " +
-        envProbe);
+    builder.Services.AddDbContext<SDMTekContext>(options =>
+        options.UseNpgsql(connectionString));
 }
-
-builder.Services.AddDbContext<SDMTekContext>(options =>
-    options.UseNpgsql(connectionString));
+else
+{
+    builder.Services.AddDbContext<SDMTekContext>(options =>
+        options.UseInMemoryDatabase("sdmtek-fallback"));
+}
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?? Array.Empty<string>();
@@ -55,19 +55,32 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Ensure schema is created/updated at startup so DB issues surface immediately.
-using (var scope = app.Services.CreateScope())
+if (!hasConnectionString)
 {
-    var db = scope.ServiceProvider.GetRequiredService<SDMTekContext>();
-    try
+    var envProbe = BuildConnectionEnvProbe(builder.Configuration);
+    app.Logger.LogWarning(
+        "Connection string 'ConnectionStrings:SDMTekConnection' is missing. " +
+        "Running with in-memory fallback database. Configure one of: " +
+        "'ConnectionStrings__SDMTekConnection', 'SDMTekConnection', 'DATABASE_URL', 'POSTGRES_URL', or PG* vars. {Probe}",
+        envProbe);
+}
+
+// Ensure schema is created/updated at startup so DB issues surface immediately.
+if (hasConnectionString)
+{
+    using (var scope = app.Services.CreateScope())
     {
-        db.Database.Migrate();
-        app.Logger.LogInformation("Database migration check completed successfully.");
-    }
-    catch (Exception ex)
-    {
-        app.Logger.LogCritical(ex, "Database migration failed during startup.");
-        throw;
+        var db = scope.ServiceProvider.GetRequiredService<SDMTekContext>();
+        try
+        {
+            db.Database.Migrate();
+            app.Logger.LogInformation("Database migration check completed successfully.");
+        }
+        catch (Exception ex)
+        {
+            app.Logger.LogCritical(ex, "Database migration failed during startup.");
+            throw;
+        }
     }
 }
 
