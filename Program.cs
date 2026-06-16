@@ -99,9 +99,14 @@ static string? ResolveConnectionString(IConfiguration configuration)
 {
     var raw = configuration.GetConnectionString("SDMTekConnection")
         ?? configuration["SDMTekConnection"]
+        ?? configuration["DATABASE_URL"]
+        ?? configuration["POSTGRES_URL"]
+        ?? configuration["POSTGRESQL_URL"]
         ?? Environment.GetEnvironmentVariable("ConnectionStrings__SDMTekConnection")
         ?? Environment.GetEnvironmentVariable("SDMTekConnection")
-        ?? Environment.GetEnvironmentVariable("DATABASE_URL");
+        ?? Environment.GetEnvironmentVariable("DATABASE_URL")
+        ?? Environment.GetEnvironmentVariable("POSTGRES_URL")
+        ?? Environment.GetEnvironmentVariable("POSTGRESQL_URL");
 
     if (string.IsNullOrWhiteSpace(raw))
     {
@@ -129,6 +134,35 @@ static string? ResolveConnectionString(IConfiguration configuration)
         };
 
         return builder.ConnectionString;
+    }
+
+    // Fallback for platforms that expose PostgreSQL settings as separate vars.
+    var pgHost = Environment.GetEnvironmentVariable("PGHOST") ?? configuration["PGHOST"];
+    var pgPortRaw = Environment.GetEnvironmentVariable("PGPORT") ?? configuration["PGPORT"];
+    var pgDatabase = Environment.GetEnvironmentVariable("PGDATABASE") ?? configuration["PGDATABASE"];
+    var pgUser = Environment.GetEnvironmentVariable("PGUSER") ?? configuration["PGUSER"];
+    var pgPassword = Environment.GetEnvironmentVariable("PGPASSWORD") ?? configuration["PGPASSWORD"];
+
+    if (!string.IsNullOrWhiteSpace(pgHost)
+        && !string.IsNullOrWhiteSpace(pgDatabase)
+        && !string.IsNullOrWhiteSpace(pgUser)
+        && !string.IsNullOrWhiteSpace(pgPassword))
+    {
+        var pgBuilder = new NpgsqlConnectionStringBuilder
+        {
+            Host = pgHost,
+            Database = pgDatabase,
+            Username = pgUser,
+            Password = pgPassword,
+            SslMode = SslMode.Require
+        };
+
+        if (int.TryParse(pgPortRaw, out var pgPort))
+        {
+            pgBuilder.Port = pgPort;
+        }
+
+        return pgBuilder.ConnectionString;
     }
 
     return trimmed;
