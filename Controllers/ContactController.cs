@@ -109,10 +109,11 @@ namespace SDMTech.Controllers
 
         private async Task<bool> VerifyCaptchaAsync(string captchaToken)
         {
-            var secretKey = _configuration["Captcha:SecretKey"];
+            var secretKey = ResolveCaptchaSecretKey();
             if (string.IsNullOrWhiteSpace(secretKey))
             {
-                _logger.LogError("Captcha secret key is not configured.");
+                _logger.LogError(
+                    "Captcha secret key is not configured. Checked keys: Captcha:SecretKey, Captcha__SecretKey, RECAPTCHA_SECRET_KEY, GOOGLE_RECAPTCHA_SECRET.");
                 return false;
             }
 
@@ -154,6 +155,18 @@ namespace SDMTech.Controllers
                 _logger.LogError(ex, "Captcha verification failed due to an exception.");
                 return false;
             }
+        }
+
+        private string? ResolveCaptchaSecretKey()
+        {
+            var secretKey = _configuration["Captcha:SecretKey"]
+                ?? _configuration["Captcha__SecretKey"]
+                ?? Environment.GetEnvironmentVariable("Captcha__SecretKey")
+                ?? Environment.GetEnvironmentVariable("CAPTCHA__SECRETKEY")
+                ?? Environment.GetEnvironmentVariable("RECAPTCHA_SECRET_KEY")
+                ?? Environment.GetEnvironmentVariable("GOOGLE_RECAPTCHA_SECRET");
+
+            return string.IsNullOrWhiteSpace(secretKey) ? null : secretKey.Trim();
         }
 
         private sealed class RecaptchaVerifyResponse
