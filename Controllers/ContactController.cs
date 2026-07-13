@@ -29,7 +29,7 @@ namespace SDMTech.Controllers
             _configuration = configuration;
         }
 
-        [HttpGet]
+         [HttpGet]
         public async Task<ActionResult<IEnumerable<Contact>>> GetContacts()
         { 
             _logger.LogInformation("Getting all contacts");
