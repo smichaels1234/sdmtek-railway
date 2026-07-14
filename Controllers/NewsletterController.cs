@@ -95,7 +95,7 @@ namespace SDMTech.Controllers
                 });
             }
 
-            return Ok(new { message = "Subscription successful.", emailSent = true });
+            return Ok(new { message = "Subscription successful. An Email Confirmation is on the way. Please check your inbox or junk folder.", emailSent = true });
         }
 
         private static bool IsValidEmail(string email)
