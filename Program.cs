@@ -57,6 +57,23 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+var emailOptions = app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<EmailOptions>>().Value;
+app.Logger.LogInformation(
+    "Email config loaded. Host={Host}, Port={Port}, UseSsl={UseSsl}, SenderEmailSet={SenderEmailSet}, UsernameSet={UsernameSet}, PasswordSet={PasswordSet}",
+    emailOptions.SmtpHost,
+    emailOptions.SmtpPort,
+    emailOptions.UseSsl,
+    !string.IsNullOrWhiteSpace(emailOptions.SenderEmail),
+    !string.IsNullOrWhiteSpace(emailOptions.Username),
+    !string.IsNullOrWhiteSpace(emailOptions.Password));
+
+app.Logger.LogInformation(
+    "Railway env presence. Email__SmtpHost={HasHost}, Email__SenderEmail={HasSender}, Email__Username={HasUsername}, Email__Password={HasPassword}",
+    !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("Email__SmtpHost")),
+    !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("Email__SenderEmail")),
+    !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("Email__Username")),
+    !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("Email__Password")));
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
