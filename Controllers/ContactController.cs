@@ -1,7 +1,9 @@
 using backend.Models;
+using backend.Services;
 using backend.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -16,17 +18,20 @@ namespace SDMTech.Controllers
         private readonly SDMTekContext _context;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
+        private readonly IEmailService _emailService;
 
         public ContactController(
             ILogger<ContactController> logger,
             SDMTekContext context,
             IHttpClientFactory httpClientFactory,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IEmailService emailService)
         {
             _logger = logger;
             _context = context;
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
+            _emailService = emailService;
         }
 
          [HttpGet]
@@ -103,8 +108,57 @@ namespace SDMTech.Controllers
             
             _context.Contacts.Add(contact);
             await _context.SaveChangesAsync();
+
+            if (!string.IsNullOrWhiteSpace(contact.Email))
+            {
+                var displayName = string.Join(" ", new[] { contact.FirstName, contact.LastName }
+                    .Where(value => !string.IsNullOrWhiteSpace(value))).Trim();
+                if (string.IsNullOrWhiteSpace(displayName))
+                {
+                    displayName = "there";
+                }
+
+                var message = $"<p>Hi {displayName},</p>" +
+                    "<p>Thanks for reaching out to SDMTek. We received your message and will get back to you shortly.</p>" +
+                    "<p>Regards,<br/>SDMTek Team</p>";
+
+                var emailSent = await _emailService.SendAsync(contact.Email, "We received your message", message);
+                if (!emailSent)
+                {
+                    _logger.LogWarning("Contact was saved but acknowledgement email could not be sent for contact id: {Id}", contact.Id);
+                }
+            }
+
+            var internalMessage =
+                "<p>A new contact submission was received:</p>" +
+                "<ul>" +
+                $"<li><strong>First Name:</strong> {Encode(contact.FirstName)}</li>" +
+                $"<li><strong>Last Name:</strong> {Encode(contact.LastName)}</li>" +
+                $"<li><strong>Email:</strong> {Encode(contact.Email)}</li>" +
+                $"<li><strong>Phone:</strong> {Encode(contact.Phone)}</li>" +
+                $"<li><strong>Company:</strong> {Encode(contact.Company)}</li>" +
+                $"<li><strong>Service:</strong> {Encode(contact.Service)}</li>" +
+                $"<li><strong>Budget:</strong> {Encode(contact.Budget)}</li>" +
+                $"<li><strong>Message:</strong> {Encode(contact.Message)}</li>" +
+                $"<li><strong>Terms Of Service:</strong> {contact.TermsOfService}</li>" +
+                "</ul>";
+
+            var internalEmailSent = await _emailService.SendAsync(
+                "contact@sdmtek.com",
+                "New Contact Form Submission",
+                internalMessage);
+
+            if (!internalEmailSent)
+            {
+                _logger.LogWarning("Contact was saved but internal notification email could not be sent for contact id: {Id}", contact.Id);
+            }
             
             return CreatedAtAction(nameof(GetContact), new { id = contact.Id }, contact);
+        }
+
+        private static string Encode(string? value)
+        {
+            return WebUtility.HtmlEncode(value ?? string.Empty);
         }
 
         private async Task<bool> VerifyCaptchaAsync(string captchaToken)

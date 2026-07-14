@@ -10,10 +10,21 @@ namespace backend.Data
         }
 
         public DbSet<Contact> Contacts { get; set; }
+        public DbSet<NewsletterSubscriber> NewsletterSubscribers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<NewsletterSubscriber>(entity =>
+            {
+                entity.Property(e => e.Email)
+                    .IsRequired()
+                    .HasMaxLength(320);
+
+                entity.HasIndex(e => e.Email)
+                    .IsUnique();
+            });
 
             // Configure your entities here
             // modelBuilder.Entity<User>(entity =>
