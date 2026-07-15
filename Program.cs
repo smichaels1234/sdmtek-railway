@@ -50,7 +50,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddHttpClient();
 builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
-builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+builder.Services.AddScoped<IEmailService, ResendEmailService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -59,20 +59,14 @@ var app = builder.Build();
 
 var emailOptions = app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<EmailOptions>>().Value;
 app.Logger.LogInformation(
-    "Email config loaded. Host={Host}, Port={Port}, UseSsl={UseSsl}, SenderEmailSet={SenderEmailSet}, UsernameSet={UsernameSet}, PasswordSet={PasswordSet}",
-    emailOptions.SmtpHost,
-    emailOptions.SmtpPort,
-    emailOptions.UseSsl,
+    "Email config loaded. Provider=Resend, SenderEmailSet={SenderEmailSet}, ResendApiKeySet={ResendApiKeySet}",
     !string.IsNullOrWhiteSpace(emailOptions.SenderEmail),
-    !string.IsNullOrWhiteSpace(emailOptions.Username),
-    !string.IsNullOrWhiteSpace(emailOptions.Password));
+    !string.IsNullOrWhiteSpace(emailOptions.ResendApiKey));
 
 app.Logger.LogInformation(
-    "Railway env presence. Email__SmtpHost={HasHost}, Email__SenderEmail={HasSender}, Email__Username={HasUsername}, Email__Password={HasPassword}",
-    !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("Email__SmtpHost")),
-    !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("Email__SenderEmail")),
-    !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("Email__Username")),
-    !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("Email__Password")));
+    "Railway env presence. Email__ResendApiKey={HasApiKey}, Email__SenderEmail={HasSender}",
+    !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("Email__ResendApiKey")),
+    !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("Email__SenderEmail")));
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
