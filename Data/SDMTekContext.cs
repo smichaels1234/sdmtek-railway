@@ -16,6 +16,8 @@ namespace backend.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.HasDefaultSchema("sdmtek_website");
+
             modelBuilder.Entity<NewsletterSubscriber>(entity =>
             {
                 entity.Property(e => e.Email)

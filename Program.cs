@@ -18,7 +18,21 @@ var connectionString = GetFirstNonEmpty(
 
 // Configure Database Context
 builder.Services.AddDbContext<SDMTekContext>(options =>
-    options.UseNpgsql(connectionString));
+{
+    options.UseNpgsql(connectionString, npgsqlOptions =>
+    {
+        npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "sdmtek_website");
+        npgsqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 3,
+            maxRetryDelay: TimeSpan.FromSeconds(5),
+            errorCodesToAdd: null);
+        npgsqlOptions.CommandTimeout(30);
+    });
+    
+    // Add connection pooling configuration
+    options.EnableServiceProviderCaching();
+    options.EnableSensitiveDataLogging(builder.Environment.IsDevelopment());
+});
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?? Array.Empty<string>();

@@ -11,8 +11,12 @@ namespace backend.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "sdmtek_website");
+
             migrationBuilder.CreateTable(
                 name: "Contacts",
+                schema: "sdmtek_website",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -32,13 +36,41 @@ namespace backend.Migrations
                 {
                     table.PrimaryKey("PK_Contacts", x => x.Id);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "NewsletterSubscribers",
+                schema: "sdmtek_website",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Email = table.Column<string>(type: "character varying(320)", maxLength: 320, nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    SubscribedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastModified = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NewsletterSubscribers", x => x.Id);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_NewsletterSubscribers_Email",
+                schema: "sdmtek_website",
+                table: "NewsletterSubscribers",
+                column: "Email",
+                unique: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Contacts");
+                name: "Contacts",
+                schema: "sdmtek_website");
+
+            migrationBuilder.DropTable(
+                name: "NewsletterSubscribers",
+                schema: "sdmtek_website");
         }
     }
 }
