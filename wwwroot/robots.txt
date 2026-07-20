@@ -1,16 +1,11 @@
-# SDMTek Robots.txt
-# Allow all search engines to crawl the site
+# SDMTek robots policy
 
 User-agent: *
 Allow: /
+Disallow: /login
 Disallow: /admin/
 Disallow: /api/
-Disallow: /login
-Disallow: /*.json$
 Disallow: /private/
 
-# Sitemap location
 Sitemap: https://www.sdmtek.com/sitemap.xml
-
-# Crawl delay (optional - uncomment if needed)
-# Crawl-delay: 1
+Host: www.sdmtek.com
