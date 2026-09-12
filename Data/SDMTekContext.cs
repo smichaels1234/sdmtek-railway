@@ -11,6 +11,7 @@ namespace backend.Data
 
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<NewsletterSubscriber> NewsletterSubscribers { get; set; }
+        public DbSet<NewsletterIssue> NewsletterIssues { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +27,19 @@ namespace backend.Data
 
                 entity.HasIndex(e => e.Email)
                     .IsUnique();
+
+                entity.HasIndex(e => e.UnsubscribeToken)
+                    .IsUnique();
+            });
+
+            modelBuilder.Entity<NewsletterIssue>(entity =>
+            {
+                entity.Property(e => e.Subject)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.HtmlBody)
+                    .IsRequired();
             });
 
             // Configure your entities here

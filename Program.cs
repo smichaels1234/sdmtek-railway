@@ -64,7 +64,9 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddHttpClient();
 builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
+builder.Services.Configure<NewsletterOptions>(builder.Configuration.GetSection("Newsletter"));
 builder.Services.AddScoped<IEmailService, ResendEmailService>();
+builder.Services.AddHostedService<backend.Services.NewsletterDispatchService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

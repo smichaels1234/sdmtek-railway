@@ -7,5 +7,6 @@ namespace backend.Models
         public bool IsActive { get; set; } = true;
         public DateTime SubscribedDate { get; set; } = DateTime.UtcNow;
         public DateTime LastModified { get; set; } = DateTime.UtcNow;
+        public Guid UnsubscribeToken { get; set; } = Guid.NewGuid();
     }
 }
