@@ -99,8 +99,8 @@ namespace SDMTech.Controllers
             return Ok(new { message = $"Issue sent to {sentCount} subscriber(s).", sentCount });
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
+        [HttpPost("{id}/cancel-schedule")]
+        public async Task<IActionResult> CancelSchedule(Guid id)
         {
             if (!IsAuthorized())
             {
@@ -115,7 +115,32 @@ namespace SDMTech.Controllers
 
             if (issue.SentAt is not null)
             {
-                return Conflict("Sent newsletter issues cannot be deleted.");
+                return Conflict("This issue has already been sent and cannot be unsent.");
+            }
+
+            if (issue.ScheduledDate is null)
+            {
+                return Conflict("This issue is not scheduled.");
+            }
+
+            issue.ScheduledDate = null;
+            await _context.SaveChangesAsync();
+
+            return Ok(issue);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            if (!IsAuthorized())
+            {
+                return Unauthorized();
+            }
+
+            var issue = await _context.NewsletterIssues.FirstOrDefaultAsync(i => i.Id == id);
+            if (issue is null)
+            {
+                return NotFound();
             }
 
             _context.NewsletterIssues.Remove(issue);
