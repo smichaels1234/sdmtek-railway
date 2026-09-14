@@ -99,6 +99,31 @@ namespace SDMTech.Controllers
             return Ok(new { message = $"Issue sent to {sentCount} subscriber(s).", sentCount });
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            if (!IsAuthorized())
+            {
+                return Unauthorized();
+            }
+
+            var issue = await _context.NewsletterIssues.FirstOrDefaultAsync(i => i.Id == id);
+            if (issue is null)
+            {
+                return NotFound();
+            }
+
+            if (issue.SentAt is not null)
+            {
+                return Conflict("Sent newsletter issues cannot be deleted.");
+            }
+
+            _context.NewsletterIssues.Remove(issue);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
         private bool IsAuthorized()
         {
             if (string.IsNullOrWhiteSpace(_options.AdminApiKey))
