@@ -1,6 +1,6 @@
 namespace backend.Models
 {
-    public class CaptchaOptions
+    public class TurnstileOptions
     {
         public string? SecretKey { get; set; }
     }

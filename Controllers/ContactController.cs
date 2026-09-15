@@ -4,8 +4,6 @@ using backend.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace SDMTech.Controllers
 {
@@ -13,25 +11,21 @@ namespace SDMTech.Controllers
     [Route("api/[controller]")]
     public class ContactController : ControllerBase
     {
-        private const string RecaptchaVerifyUrl = "https://www.google.com/recaptcha/api/siteverify";
         private readonly ILogger<ContactController> _logger;
         private readonly SDMTekContext _context;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IConfiguration _configuration;
         private readonly IEmailService _emailService;
+        private readonly ITurnstileService _turnstileService;
 
         public ContactController(
             ILogger<ContactController> logger,
             SDMTekContext context,
-            IHttpClientFactory httpClientFactory,
-            IConfiguration configuration,
-            IEmailService emailService)
+            IEmailService emailService,
+            ITurnstileService turnstileService)
         {
             _logger = logger;
             _context = context;
-            _httpClientFactory = httpClientFactory;
-            _configuration = configuration;
             _emailService = emailService;
+            _turnstileService = turnstileService;
         }
 
          [HttpGet]
@@ -84,10 +78,13 @@ namespace SDMTech.Controllers
                 return BadRequest("Captcha token is required.");
             }
 
-            var isCaptchaValid = await VerifyCaptchaAsync(request.CaptchaToken);
-            if (!isCaptchaValid)
+            var isTurnstileValid = await _turnstileService.VerifyAsync(
+                request.CaptchaToken,
+                HttpContext.Connection.RemoteIpAddress?.ToString(),
+                HttpContext.RequestAborted);
+            if (!isTurnstileValid)
             {
-                return BadRequest("Captcha validation failed.");
+                return BadRequest("Verification failed. Please try again.");
             }
 
             var contact = new Contact
@@ -159,64 +156,6 @@ namespace SDMTech.Controllers
         private static string Encode(string? value)
         {
             return WebUtility.HtmlEncode(value ?? string.Empty);
-        }
-
-        private async Task<bool> VerifyCaptchaAsync(string captchaToken)
-        {
-            var secretKey = _configuration["Captcha:SecretKey"];
-            if (string.IsNullOrWhiteSpace(secretKey))
-            {
-                _logger.LogError("Captcha secret key is not configured.");
-                return false;
-            }
-
-            try
-            {
-                using var client = _httpClientFactory.CreateClient();
-                using var content = new FormUrlEncodedContent(new Dictionary<string, string>
-                {
-                    ["secret"] = secretKey,
-                    ["response"] = captchaToken,
-                    ["remoteip"] = HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty
-                });
-
-                var response = await client.PostAsync(RecaptchaVerifyUrl, content);
-                if (!response.IsSuccessStatusCode)
-                {
-                    _logger.LogWarning("Captcha verification API returned status code {StatusCode}", response.StatusCode);
-                    return false;
-                }
-
-                await using var responseStream = await response.Content.ReadAsStreamAsync();
-                var captchaResponse = await JsonSerializer.DeserializeAsync<RecaptchaVerifyResponse>(
-                    responseStream,
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-                if (captchaResponse?.Success != true)
-                {
-                    _logger.LogWarning(
-                        "Captcha validation failed. Error codes: {ErrorCodes}",
-                        captchaResponse?.ErrorCodes is { Length: > 0 }
-                            ? string.Join(",", captchaResponse.ErrorCodes)
-                            : "none");
-                }
-
-                return captchaResponse?.Success ?? false;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Captcha verification failed due to an exception.");
-                return false;
-            }
-        }
-
-        private sealed class RecaptchaVerifyResponse
-        {
-            [JsonPropertyName("success")]
-            public bool Success { get; set; }
-
-            [JsonPropertyName("error-codes")]
-            public string[]? ErrorCodes { get; set; }
         }
     }
 }

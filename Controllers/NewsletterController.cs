@@ -15,23 +15,40 @@ namespace SDMTech.Controllers
         private readonly ILogger<NewsletterController> _logger;
         private readonly SDMTekContext _context;
         private readonly IEmailService _emailService;
+        private readonly ITurnstileService _turnstileService;
         private readonly NewsletterOptions _newsletterOptions;
 
         public NewsletterController(
             ILogger<NewsletterController> logger,
             SDMTekContext context,
             IEmailService emailService,
+            ITurnstileService turnstileService,
             IOptions<NewsletterOptions> newsletterOptions)
         {
             _logger = logger;
             _context = context;
             _emailService = emailService;
+            _turnstileService = turnstileService;
             _newsletterOptions = newsletterOptions.Value;
         }
 
         [HttpPost]
         public async Task<IActionResult> Subscribe([FromBody] SubscribeNewsletterRequest request)
         {
+            if (string.IsNullOrWhiteSpace(request.CaptchaToken))
+            {
+                return BadRequest("Please complete the verification before subscribing.");
+            }
+
+            var isTurnstileValid = await _turnstileService.VerifyAsync(
+                request.CaptchaToken,
+                HttpContext.Connection.RemoteIpAddress?.ToString(),
+                HttpContext.RequestAborted);
+            if (!isTurnstileValid)
+            {
+                return BadRequest("Verification failed. Please try again.");
+            }
+
             var email = request.Email?.Trim();
             if (string.IsNullOrWhiteSpace(email))
             {

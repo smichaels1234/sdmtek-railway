@@ -65,7 +65,9 @@ builder.Services.AddOpenApi();
 builder.Services.AddHttpClient();
 builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
 builder.Services.Configure<NewsletterOptions>(builder.Configuration.GetSection("Newsletter"));
+builder.Services.Configure<TurnstileOptions>(builder.Configuration.GetSection("Turnstile"));
 builder.Services.AddScoped<IEmailService, ResendEmailService>();
+builder.Services.AddScoped<ITurnstileService, TurnstileService>();
 builder.Services.AddHostedService<backend.Services.NewsletterDispatchService>();
 
 builder.Services.AddEndpointsApiExplorer();
