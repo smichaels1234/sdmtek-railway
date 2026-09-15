@@ -22,13 +22,16 @@ namespace backend.Services
             _options = options.Value;
         }
 
+        public bool IsConfigured =>
+            !string.IsNullOrWhiteSpace(_options.SecretKey) && _options.AllowedHostnames.Length > 0;
+
         public async Task<bool> VerifyAsync(
             string token,
             string expectedAction,
             string? remoteIpAddress,
             CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrWhiteSpace(_options.SecretKey) || _options.AllowedHostnames.Length == 0)
+            if (!IsConfigured)
             {
                 _logger.LogError("Cloudflare Turnstile is not fully configured.");
                 return false;
@@ -38,7 +41,7 @@ namespace backend.Services
             {
                 using var content = new FormUrlEncodedContent(new Dictionary<string, string>
                 {
-                    ["secret"] = _options.SecretKey,
+                    ["secret"] = _options.SecretKey!,
                     ["response"] = token,
                     ["remoteip"] = remoteIpAddress ?? string.Empty
                 });

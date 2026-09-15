@@ -40,6 +40,14 @@ namespace SDMTech.Controllers
                 return BadRequest("Please complete the verification before subscribing.");
             }
 
+            if (!_turnstileService.IsConfigured)
+            {
+                return Problem(
+                    title: "Verification is not configured.",
+                    detail: "The server is missing its Cloudflare Turnstile configuration.",
+                    statusCode: StatusCodes.Status503ServiceUnavailable);
+            }
+
             var isTurnstileValid = await _turnstileService.VerifyAsync(
                 request.CaptchaToken,
                 "newsletter",

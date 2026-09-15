@@ -78,6 +78,14 @@ namespace SDMTech.Controllers
                 return BadRequest("Captcha token is required.");
             }
 
+            if (!_turnstileService.IsConfigured)
+            {
+                return Problem(
+                    title: "Verification is not configured.",
+                    detail: "The server is missing its Cloudflare Turnstile configuration.",
+                    statusCode: StatusCodes.Status503ServiceUnavailable);
+            }
+
             var isTurnstileValid = await _turnstileService.VerifyAsync(
                 request.CaptchaToken,
                 "contact",
