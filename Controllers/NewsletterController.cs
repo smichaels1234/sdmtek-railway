@@ -42,6 +42,7 @@ namespace SDMTech.Controllers
 
             var isTurnstileValid = await _turnstileService.VerifyAsync(
                 request.CaptchaToken,
+                "newsletter",
                 HttpContext.Connection.RemoteIpAddress?.ToString(),
                 HttpContext.RequestAborted);
             if (!isTurnstileValid)

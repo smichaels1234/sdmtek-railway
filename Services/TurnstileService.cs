@@ -22,11 +22,15 @@ namespace backend.Services
             _options = options.Value;
         }
 
-        public async Task<bool> VerifyAsync(string token, string? remoteIpAddress, CancellationToken cancellationToken = default)
+        public async Task<bool> VerifyAsync(
+            string token,
+            string expectedAction,
+            string? remoteIpAddress,
+            CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrWhiteSpace(_options.SecretKey))
+            if (string.IsNullOrWhiteSpace(_options.SecretKey) || _options.AllowedHostnames.Length == 0)
             {
-                _logger.LogError("Cloudflare Turnstile secret key is not configured.");
+                _logger.LogError("Cloudflare Turnstile is not fully configured.");
                 return false;
             }
 
@@ -52,15 +56,22 @@ namespace backend.Services
                     responseStream,
                     cancellationToken: cancellationToken);
 
-                if (verification?.Success != true)
+                var isValid = verification?.Success == true &&
+                    verification.Action == expectedAction &&
+                    !string.IsNullOrWhiteSpace(verification.Hostname) &&
+                    _options.AllowedHostnames.Contains(verification.Hostname, StringComparer.OrdinalIgnoreCase);
+
+                if (!isValid)
                 {
-                    _logger.LogWarning("Turnstile validation failed. Error codes: {ErrorCodes}",
+                    _logger.LogWarning("Turnstile validation failed. Error codes: {ErrorCodes}; action: {Action}; hostname: {Hostname}",
                         verification?.ErrorCodes is { Length: > 0 }
                             ? string.Join(",", verification.ErrorCodes)
-                            : "none");
+                            : "none",
+                        verification?.Action ?? "none",
+                        verification?.Hostname ?? "none");
                 }
 
-                return verification?.Success == true;
+                return isValid;
             }
             catch (Exception ex)
             {
@@ -76,6 +87,12 @@ namespace backend.Services
 
             [JsonPropertyName("error-codes")]
             public string[]? ErrorCodes { get; set; }
+
+            [JsonPropertyName("action")]
+            public string? Action { get; set; }
+
+            [JsonPropertyName("hostname")]
+            public string? Hostname { get; set; }
         }
     }
 }
