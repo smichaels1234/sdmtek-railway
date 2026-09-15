@@ -48,6 +48,7 @@ namespace SDMTech.Controllers
 
             if (existingSubscriber is not null)
             {
+                var wasInactive = !existingSubscriber.IsActive;
                 if (!existingSubscriber.IsActive)
                 {
                     existingSubscriber.IsActive = true;
@@ -61,17 +62,23 @@ namespace SDMTech.Controllers
                 {
                     return Ok(new
                     {
-                        message = "You are already subscribed, but confirmation email could not be sent right now.",
+                        message = wasInactive
+                            ? "You have been resubscribed, but confirmation email could not be sent right now."
+                            : "You are already subscribed, but confirmation email could not be sent right now.",
                         emailSent = false,
-                        alreadySubscribed = true
+                        alreadySubscribed = !wasInactive,
+                        resubscribed = wasInactive
                     });
                 }
 
                 return Ok(new
                 {
-                    message = "You are already subscribed. Confirmation email was sent.",
+                    message = wasInactive
+                        ? "You have been resubscribed. Confirmation email was sent."
+                        : "You are already subscribed. Confirmation email was sent.",
                     emailSent = true,
-                    alreadySubscribed = true
+                    alreadySubscribed = !wasInactive,
+                    resubscribed = wasInactive
                 });
             }
 
