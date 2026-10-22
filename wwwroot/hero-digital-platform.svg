@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="850" viewBox="0 0 1600 850" fill="none">
+  <title>Connected software platform concept</title>
+  <desc>An illustrative dashboard, mobile application, and connected cloud services. Not a screenshot of a live product.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1600" y2="850" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#10233b"/>
+      <stop offset="1" stop-color="#30587d"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="850" y1="150" x2="1420" y2="700" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#345b80"/>
+      <stop offset="1" stop-color="#19334f"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="920" y1="430" x2="1370" y2="290" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f97316"/>
+      <stop offset="1" stop-color="#ffc58b"/>
+    </linearGradient>
+    <linearGradient id="chartFill" x1="0" y1="290" x2="0" y2="460" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f97316" stop-opacity=".3"/>
+      <stop offset="1" stop-color="#f97316" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="glow">
+      <stop stop-color="#f97316" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#f97316" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M48 0H0V48" stroke="#7293ba" stroke-opacity=".055"/>
+    </pattern>
+    <filter id="shadow" x="-25%" y="-25%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="22" stdDeviation="24" flood-color="#020713" flood-opacity=".5"/>
+    </filter>
+  </defs>
+  <path fill="url(#background)" d="M0 0h1600v850H0z"/>
+  <path fill="url(#grid)" d="M0 0h1600v850H0z"/>
+  <ellipse cx="1220" cy="420" rx="520" ry="430" fill="url(#glow)"/>
+  <g stroke="#557aa4" stroke-opacity=".35">
+    <ellipse cx="1200" cy="430" rx="375" ry="325"/>
+    <ellipse cx="1200" cy="430" rx="425" ry="375" stroke-dasharray="4 12"/>
+  </g>
+  <g stroke="#fb923c" stroke-width="2" stroke-opacity=".65" stroke-dasharray="5 7">
+    <path d="M1030 162V112h260v60"/>
+    <path d="M1410 335h100v220h-90"/>
+    <path d="M1000 632v98h250"/>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="835" y="180" width="605" height="450" rx="22" fill="url(#panel)" stroke="#526b8b"/>
+    <path d="M835 228h605" stroke="#3c526f"/>
+    <g fill="#738ca9">
+      <circle cx="860" cy="204" r="4"/>
+      <circle cx="876" cy="204" r="4"/>
+      <circle cx="892" cy="204" r="4"/>
+    </g>
+    <rect x="1085" y="197" width="150" height="13" rx="6.5" fill="#344e6d"/>
+    <path d="M889 229v400" stroke="#3c526f"/>
+    <g fill="#526d90">
+      <rect x="854" y="251" width="16" height="16" rx="4"/>
+      <rect x="854" y="290" width="16" height="16" rx="4"/>
+      <rect x="854" y="329" width="16" height="16" rx="4"/>
+      <rect x="854" y="368" width="16" height="16" rx="4"/>
+    </g>
+    <rect x="854" y="251" width="16" height="16" rx="4" fill="#fb923c"/>
+    <g font-family="Segoe UI, Arial, sans-serif">
+      <text x="914" y="267" fill="#edf4ff" font-size="19" font-weight="600">Platform overview</text>
+      <text x="914" y="289" fill="#9db3ce" font-size="12">Applications. Insights. Connected.</text>
+      <rect x="914" y="310" width="499" height="160" rx="12" fill="#0d1d34" stroke="#2c4566"/>
+      <g stroke="#29415f">
+        <path d="M934 348h459M934 384h459M934 420h459M934 452h459"/>
+      </g>
+      <path d="m935 434 51-16 39 5 46-45 43 13 50-31 40 10 45-36 42 7 59-35 42 5V455H935Z" fill="url(#chartFill)"/>
+      <path d="m935 434 51-16 39 5 46-45 43 13 50-31 40 10 45-36 42 7 59-35 42 5" stroke="url(#accent)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="914" y="490" width="240" height="113" rx="12" fill="#132640" stroke="#304b6c"/>
+      <text x="932" y="517" fill="#c7d7ed" font-size="13">Delivery workflow</text>
+      <g fill="#557194">
+        <rect x="932" y="534" width="54" height="7" rx="3.5"/>
+        <rect x="932" y="551" width="77" height="7" rx="3.5"/>
+        <rect x="932" y="568" width="64" height="7" rx="3.5"/>
+      </g>
+      <g fill="#52c6b7">
+        <rect x="1032" y="534" width="97" height="7" rx="3.5"/>
+        <rect x="1032" y="551" width="73" height="7" rx="3.5"/>
+        <rect x="1032" y="568" width="85" height="7" rx="3.5"/>
+      </g>
+      <rect x="1170" y="490" width="243" height="113" rx="12" fill="#132640" stroke="#304b6c"/>
+      <text x="1188" y="517" fill="#c7d7ed" font-size="13">Channel insights</text>
+      <g fill="#fb923c">
+        <rect x="1190" y="558" width="19" height="24" rx="4"/>
+        <rect x="1225" y="546" width="19" height="36" rx="4"/>
+        <rect x="1260" y="553" width="19" height="29" rx="4"/>
+        <rect x="1295" y="535" width="19" height="47" rx="4"/>
+        <rect x="1330" y="541" width="19" height="41" rx="4"/>
+        <rect x="1365" y="530" width="19" height="52" rx="4"/>
+      </g>
+    </g>
+  </g>
+  <g filter="url(#shadow)">
+    <rect x="1350" y="424" width="158" height="288" rx="26" fill="#081425" stroke="#7287a1" stroke-width="2"/>
+    <rect x="1360" y="435" width="138" height="265" rx="19" fill="#172c48"/>
+    <rect x="1401" y="442" width="56" height="7" rx="3.5" fill="#081425"/>
+    <rect x="1376" y="474" width="69" height="9" rx="4.5" fill="#c9d9ed"/>
+    <rect x="1376" y="493" width="99" height="6" rx="3" fill="#617d9f"/>
+    <circle cx="1429" cy="548" r="29" stroke="#304b6c" stroke-width="9"/>
+    <path d="M1429 519a29 29 0 0 1 23 47" stroke="#fb923c" stroke-width="9" stroke-linecap="round"/>
+    <g fill="#294260">
+      <rect x="1376" y="596" width="106" height="24" rx="7"/>
+      <rect x="1376" y="630" width="106" height="24" rx="7"/>
+    </g>
+    <path d="m1385 608 4 4 7-8m-11 38 4 4 7-8" stroke="#52c6b7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="1411" y="678" width="36" height="4" rx="2" fill="#617d9f"/>
+  </g>
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#d9e6f7">
+    <rect x="1127" y="84" width="170" height="66" rx="14" fill="#162b45" stroke="#496484"/>
+    <path d="M1151 122h27a8 8 0 0 0 0-16 12 12 0 0 0-23-1 9 9 0 0 0-4 17Z" stroke="#66cddd" stroke-width="2"/>
+    <text x="1195" y="122">Cloud + APIs</text>
+    <rect x="1054" y="693" width="230" height="62" rx="14" fill="#162b45" stroke="#496484"/>
+    <path d="m1074 724 7 7 13-16" stroke="#52c6b7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="1108" y="730">Quality + automation</text>
+  </g>
+</svg>
