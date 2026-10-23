@@ -1,11 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="850" viewBox="0 0 1600 850" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" width="865" height="720" viewBox="760 65 865 720" fill="none">
   <title>Connected software platform concept</title>
   <desc>An illustrative dashboard, mobile application, and connected cloud services. Not a screenshot of a live product.</desc>
   <defs>
-    <linearGradient id="background" x1="0" y1="0" x2="1600" y2="850" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#10233b"/>
-      <stop offset="1" stop-color="#30587d"/>
-    </linearGradient>
     <linearGradient id="panel" x1="850" y1="150" x2="1420" y2="700" gradientUnits="userSpaceOnUse">
       <stop stop-color="#345b80"/>
       <stop offset="1" stop-color="#19334f"/>
@@ -18,20 +14,10 @@
       <stop stop-color="#f97316" stop-opacity=".3"/>
       <stop offset="1" stop-color="#f97316" stop-opacity="0"/>
     </linearGradient>
-    <radialGradient id="glow">
-      <stop stop-color="#f97316" stop-opacity=".28"/>
-      <stop offset="1" stop-color="#f97316" stop-opacity="0"/>
-    </radialGradient>
-    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
-      <path d="M48 0H0V48" stroke="#7293ba" stroke-opacity=".055"/>
-    </pattern>
     <filter id="shadow" x="-25%" y="-25%" width="160%" height="170%">
       <feDropShadow dx="0" dy="22" stdDeviation="24" flood-color="#020713" flood-opacity=".5"/>
     </filter>
   </defs>
-  <path fill="url(#background)" d="M0 0h1600v850H0z"/>
-  <path fill="url(#grid)" d="M0 0h1600v850H0z"/>
-  <ellipse cx="1220" cy="420" rx="520" ry="430" fill="url(#glow)"/>
   <g stroke="#557aa4" stroke-opacity=".35">
     <ellipse cx="1200" cy="430" rx="375" ry="325"/>
     <ellipse cx="1200" cy="430" rx="425" ry="375" stroke-dasharray="4 12"/>
